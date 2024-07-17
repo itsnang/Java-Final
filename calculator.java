@@ -3,70 +3,113 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class calculator extends JFrame implements ActionListener {
-    private JTextField display;
-    private String operator;
-    private double firstNumber, secondNumber, result;
-    
-    public calculator() {
+public class Calculator extends JFrame implements ActionListener {
+
+    private JTextField firstNumberField, secondNumberField, resultField;
+    private JButton addButton, subtractButton, multiplyButton, divideButton, modulusButton, clearButton;
+
+    public CalculatorJava() {
+        initializeUI();
+    }
+
+    private void initializeUI() {
         setTitle("Calculator");
-        setSize(400, 400);
+        setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
 
-        display = new JTextField();
-        display.setEditable(false);
-        display.setFont(new Font("Arial", Font.PLAIN, 24));
-        add(display, BorderLayout.NORTH);
+        JPanel inputPanel = createInputPanel();
+        JPanel buttonPanel = createButtonPanel();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 4, 10, 10));
+        add(inputPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
 
-        String[] buttons = {
-            "7", "8", "9", "/",
-            "4", "5", "6", "*",
-            "1", "2", "3", "-",
-            "0", ".", "=", "+"
-        };
-
-        for (String text : buttons) {
-            JButton button = new JButton(text);
-            button.setFont(new Font("Arial", Font.PLAIN, 24));
-            button.addActionListener(this);
-            panel.add(button);
-        }
-
-        add(panel);
-
+        setSize(400, 300);
         setVisible(true);
+    }
+
+    private JPanel createInputPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+
+        firstNumberField = new JTextField();
+        secondNumberField = new JTextField();
+        resultField = new JTextField();
+        resultField.setEditable(false);
+
+        panel.add(new JLabel("First Number:"));
+        panel.add(firstNumberField);
+        panel.add(new JLabel("Second Number:"));
+        panel.add(secondNumberField);
+        panel.add(new JLabel("Result:"));
+        panel.add(resultField);
+
+        return panel;
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel panel = new JPanel(new GridLayout(2, 3, 10, 10));
+
+        addButton = createButton("+");
+        subtractButton = createButton("-");
+        multiplyButton = createButton("*");
+        divideButton = createButton("/");
+        modulusButton = createButton("%");
+        clearButton = createButton("Clear");
+
+        panel.add(addButton);
+        panel.add(subtractButton);
+        panel.add(multiplyButton);
+        panel.add(divideButton);
+        panel.add(modulusButton);
+        panel.add(clearButton);
+
+        return panel;
+    }
+
+    private JButton createButton(String text) {
+        JButton button = new JButton(text);
+        button.addActionListener(this);
+        return button;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
+        try {
+            double num1 = Double.parseDouble(firstNumberField.getText());
+            double num2 = Double.parseDouble(secondNumberField.getText());
+            double result = 0;
 
-        if (command.charAt(0) == 'C') {
-            display.setText("");
-        } else if (command.charAt(0) == '=') {
-            secondNumber = Double.parseDouble(display.getText());
-            switch (operator) {
-                case "+": result = firstNumber + secondNumber; break;
-                case "-": result = firstNumber - secondNumber; break;
-                case "*": result = firstNumber * secondNumber; break;
-                case "/": result = firstNumber / secondNumber; break;
+            if (e.getSource() == addButton) {
+                result = num1 + num2;
+            } else if (e.getSource() == subtractButton) {
+                result = num1 - num2;
+            } else if (e.getSource() == multiplyButton) {
+                result = num1 * num2;
+            } else if (e.getSource() == divideButton) {
+                result = num1 / num2;
+            } else if (e.getSource() == modulusButton) {
+                result = num1 % num2;
+            } else if (e.getSource() == clearButton) {
+                clearFields();
+                return;
             }
-            display.setText(String.valueOf(result));
-        } else if (command.charAt(0) == '+' || command.charAt(0) == '-' ||
-                   command.charAt(0) == '*' || command.charAt(0) == '/') {
-            operator = command;
-            firstNumber = Double.parseDouble(display.getText());
-            display.setText("");
-        } else {
-            display.setText(display.getText() + command);
+
+            resultField.setText(String.valueOf(result));
+        } catch (NumberFormatException ex) {
+            showErrorDialog("Invalid input. Please enter numeric values.");
         }
     }
 
+    private void clearFields() {
+        firstNumberField.setText("");
+        secondNumberField.setText("");
+        resultField.setText("");
+    }
+
+    private void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new calculator());
+        SwingUtilities.invokeLater(CalculatorJava::new);
     }
 }
